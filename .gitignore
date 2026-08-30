@@ -1,0 +1,19 @@
+# Binarios y compilados de Java
+*.class
+Java/bin/
+bin/
+
+# Compilados de C++
+*.exe
+*.o
+*.obj
+*.out
+
+# IDEs y configuración
+.vscode/
+.idea/
+*.iml
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
