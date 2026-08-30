@@ -28,28 +28,27 @@ El programa contiene cinco clases:
 
 ### Modelo de dominio
 
-- **`Vehiculo` (abstracta):** atributos comunes protegidos (`placa`, `marca`, `anio` e `precio`) y un método abstracto que cada hija sobrescribe.
-- **`Automovil`:** hereda de `Vehiculo`; agrega `numeroPuertas` (`int`) y `esElectrico` (`boolean`).
+- **`Vehiculo` (abstracta):** atributos comunes protegidos (`placa`, `marca`, `modelo`, `anio`, `precio` y `disponible`) y el método abstracto `mostrarInformacion()`, que cada hija sobrescribe.
+- **`Automovil`:** hereda de `Vehiculo`; agrega `numeroPuertas` (`int`) y `electrico` (`boolean`).
 - **`Motocicleta`:** hereda de `Vehiculo`; agrega `cilindrada` (`int`) y `tieneMaletero` (`boolean`).
-- **`RegistroVehiculos`:** TDA con `new Vehiculo[10]`, un `tope`/`cantidad` y operaciones para registrar y listar.
+- **`RegistroVehiculos`:** TDA con arreglo fijo de 10, `cantidad`, `registrar`, `existePlaca` y `mostrarTodos`.
 - **`Main`:** menú de consola. Recibe los datos del usuario, instancia `Automovil` o `Motocicleta` con `new` y los entrega al TDA.
 
 ### Conceptos aplicados
 
-| Requisito | Aplicación |
-|---|---|
-| Arreglo estático | `new Vehiculo[10]` crea un arreglo de tamaño fijo. |
-| Datos primitivos | `int`, `double` y `boolean`. |
-| Clase | `Vehiculo`, `Automovil`, `Motocicleta` y `RegistroVehiculos`. |
-| Instanciación | `new Automovil(...)`, `new Motocicleta(...)`. |
-| Herencia | `Automovil extends Vehiculo` y `Motocicleta extends Vehiculo`. |
-| Polimorfismo | Método abstracto sobrescrito con `@Override`. |
-| Encapsulamiento | Atributos `private` y `protected`. |
-| Comentarios | El código contiene marcas `CONCEPTO:`. |
+| Requisito | Java | C++ |
+|---|---|---|
+| Arreglo estático | `new Vehiculo[10]` | `Vehiculo* vehiculos[10]` |
+| Datos primitivos | `int`, `double` y `boolean` | `int`, `double` y `bool` |
+| Clase | `Vehiculo`, `Automovil`, `Motocicleta` y `RegistroVehiculos` | las mismas |
+| Instanciación | `new Automovil(...)`, `new Motocicleta(...)` | `new Automovil(...)`, `new Motocicleta(...)` |
+| Herencia | `Automovil extends Vehiculo` | `class Automovil : public Vehiculo` |
+| Polimorfismo | `mostrarInformacion()` abstracto con `@Override` | `virtual void mostrarInformacion() const = 0` y `override` |
+| Encapsulamiento | atributos `private` y `protected` | atributos `private` y `protected` |
 
-Los primitivos quedan así: `int` (`anio`, `numeroPuertas`, `cilindrada`, `cantidad`), `double` (`precio`) y `boolean` (`esElectrico`, `tieneMaletero`).
+Los primitivos quedan así: `int` (`anio`, `numeroPuertas`, `cilindrada`, `cantidad`), `double` (`precio`) y `boolean`/`bool` (`disponible`, `electrico`, `tieneMaletero`).
 
-El polimorfismo se observa al recorrer el arreglo de tipo `Vehiculo`: cada posición puede apuntar a un automóvil o a una motocicleta, y la llamada al método abstracto ejecuta la versión de la clase real.
+El polimorfismo se observa al recorrer el arreglo de tipo `Vehiculo`: cada posición puede apuntar a un automóvil o a una motocicleta, y `mostrarTodos()` llama a `mostrarInformacion()` sin preguntar el tipo concreto.
 
 ## Estructura del proyecto
 
@@ -58,6 +57,8 @@ Arquitectura modular en 3 paquetes/carpetas (implementada en Java y C++):
 - `modelo/`  -> clases del dominio (`Vehiculo`, `Automovil`, `Motocicleta`).
 - `negocio/` -> TDA `RegistroVehiculos` que administra el arreglo estático.
 - `app/`     -> punto de entrada (`Main.java` / `main.cpp`) con el menú.
+
+En Java los paquetes son `vehiculo.modelo`, `vehiculo.negocio` y `vehiculo.app`.
 
 ## Diagramas
 
@@ -75,7 +76,7 @@ Desde la carpeta `Java`:
 javac -d bin src/modelo/*.java src/negocio/*.java src/app/*.java
 
 # Ejecutar
-java -cp bin app.Main
+java -cp bin vehiculo.app.Main
 ```
 
 ### C++

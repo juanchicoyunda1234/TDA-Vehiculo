@@ -10,44 +10,46 @@ classDiagram
         <<abstract>>
         #String placa
         #String marca
+        #String modelo
         #int anio
         #double precio
-        +Vehiculo(placa, marca, anio, precio)
-        +describir() String*
-        +mostrarInformacion()
+        #boolean disponible
+        #Vehiculo(placa, marca, modelo, anio, precio, disponible)
+        #datosComunes() String
+        +getPlaca() String
+        +mostrarInformacion()*
     }
 
     class Automovil {
         -int numeroPuertas
-        -boolean esElectrico
-        +Automovil(placa, marca, anio, precio, numeroPuertas, esElectrico)
-        +describir() String
+        -boolean electrico
+        +Automovil(placa, marca, modelo, anio, precio, disponible, numeroPuertas, electrico)
+        +mostrarInformacion()
     }
 
     class Motocicleta {
         -int cilindrada
         -boolean tieneMaletero
-        +Motocicleta(placa, marca, anio, precio, cilindrada, tieneMaletero)
-        +describir() String
+        +Motocicleta(placa, marca, modelo, anio, precio, disponible, cilindrada, tieneMaletero)
+        +mostrarInformacion()
     }
 
     class RegistroVehiculos {
         -Vehiculo[] vehiculos
         -int cantidad
-        +int CAPACIDAD 10
+        -int CAPACIDAD 10
         +RegistroVehiculos()
         +registrar(Vehiculo) boolean
+        +existePlaca(placa) boolean
         +mostrarTodos()
-        +getCantidad() int
         +estaLleno() boolean
+        +getCantidad() int
     }
 
     class Main {
         +main(String[]) void
-        -mostrarMenu()
         -registrarAutomovil(RegistroVehiculos)
         -registrarMotocicleta(RegistroVehiculos)
-        -listarVehiculos(RegistroVehiculos)
     }
 
     Vehiculo <|-- Automovil : hereda
@@ -62,16 +64,16 @@ classDiagram
 
 | Relación | Qué representa |
 |---|---|
-| `Vehiculo <|-- Automovil` y `Vehiculo <|-- Motocicleta` | **Herencia.** Las hijas reutilizan placa, marca, año y precio. |
-| `describir()` marcado como abstracto (`*`) en `Vehiculo` | **Polimorfismo.** Cada hija lo sobrescribe con `@Override`. |
-| `RegistroVehiculos o-- Vehiculo` (0..10) | **Arreglo estático** `new Vehiculo[10]`. Guarda referencias, no el tipo concreto. |
+| `Vehiculo <|-- Automovil` y `Vehiculo <|-- Motocicleta` | **Herencia.** Las hijas reutilizan placa, marca, modelo, año, precio y disponible. |
+| `mostrarInformacion()` abstracto en `Vehiculo` | **Polimorfismo.** Cada hija lo sobrescribe (`@Override` en Java, `override` en C++). |
+| `RegistroVehiculos o-- Vehiculo` (0..10) | **Arreglo estático** de 10. Guarda referencias, no el tipo concreto. |
 | `Main ..> Automovil` y `Main ..> Motocicleta` | **Instanciación.** El menú hace `new Automovil(...)` y `new Motocicleta(...)`. |
 | Atributos `#` en `Vehiculo` y `-` en las hijas y el TDA | **Encapsulamiento.** `protected` en la clase base y `private` en el resto. |
 | `int`, `double` y `boolean` | **Datos primitivos** pedidos en el enunciado. |
 
 ## Responsabilidades
 
-| Clase | Paquete | Responsabilidad |
+| Clase | Paquete / carpeta | Responsabilidad |
 |---|---|---|
 | `Vehiculo` | `modelo` | Clase abstracta con los atributos comunes. |
 | `Automovil` | `modelo` | Clase hija con número de puertas y estado eléctrico. |

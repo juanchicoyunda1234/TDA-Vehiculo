@@ -1,236 +1,108 @@
 #include <iostream>
 #include <string>
-#include <vector>
-#include <memory>
 #include <stdexcept>
+#include <cctype>
+#include "../negocio/RegistroVehiculos.cpp"
 
-// ==========================================
-// 1. CLASES MODELO Y NEGOCIO
-// ==========================================
+static std::string leerLinea() {
+    std::string linea;
+    std::getline(std::cin, linea);
+    return linea;
+}
 
-class Vehiculo {
-protected:
-    std::string placa;
-    std::string marca;
-    std::string modelo;
-    int anio;
-    double precio;
-    bool disponible;
-
-public:
-    Vehiculo(std::string p, std::string m, std::string mod, int a, double prec, bool disp)
-        : placa(p), marca(m), modelo(mod), anio(a), precio(prec), disponible(disp) {}
-
-    virtual ~Vehiculo() {}
-
-    // Método virtual puro para demostrar Polimorfismo
-    virtual void mostrar() const = 0;
-
-    std::string getPlaca() const {
-        return placa;
+static std::string recortar(const std::string& texto) {
+    size_t inicio = 0;
+    while (inicio < texto.size() && std::isspace(static_cast<unsigned char>(texto[inicio]))) {
+        inicio++;
     }
-};
-
-class Automovil : public Vehiculo {
-private:
-    int numeroPuertas;
-    bool electrico;
-
-public:
-    Automovil(std::string p, std::string m, std::string mod, int a, double prec, bool disp, int puertas, bool elec)
-        : Vehiculo(p, m, mod, a, prec, disp), numeroPuertas(puertas), electrico(elec) {
-        if (puertas <= 0) {
-            throw std::invalid_argument("El numero de puertas debe ser mayor a 0.");
-        }
+    size_t fin = texto.size();
+    while (fin > inicio && std::isspace(static_cast<unsigned char>(texto[fin - 1]))) {
+        fin--;
     }
+    return texto.substr(inicio, fin - inicio);
+}
 
-    void mostrar() const override {
-        std::cout << "[Automovil] Placa: " << placa 
-                  << " | Marca: " << marca 
-                  << " | Modelo: " << modelo 
-                  << " | Anio: " << anio 
-                  << " | Precio: $" << precio 
-                  << " | Disponible: " << (disponible ? "Si" : "No") 
-                  << " | Puertas: " << numeroPuertas 
-                  << " | Electrico: " << (electrico ? "Si" : "No") << std::endl;
+static bool parseBoolean(const std::string& texto) {
+    std::string valor = recortar(texto);
+    for (size_t i = 0; i < valor.size(); i++) {
+        valor[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(valor[i])));
     }
-};
+    return valor == "true";
+}
 
-class Motocicleta : public Vehiculo {
-private:
-    int cilindrada;
-    bool tieneMaletero;
-
-public:
-    Motocicleta(std::string p, std::string m, std::string mod, int a, double prec, bool disp, int cil, bool maletero)
-        : Vehiculo(p, m, mod, a, prec, disp), cilindrada(cil), tieneMaletero(maletero) {
-        if (cil <= 0) {
-            throw std::invalid_argument("La cilindrada debe ser mayor a 0.");
-        }
-    }
-
-    void mostrar() const override {
-        std::cout << "[Motocicleta] Placa: " << placa 
-                  << " | Marca: " << marca 
-                  << " | Modelo: " << modelo 
-                  << " | Anio: " << anio 
-                  << " | Precio: $" << precio 
-                  << " | Disponible: " << (disponible ? "Si" : "No") 
-                  << " | Cilindrada: " << cilindrada << "cc" 
-                  << " | Maletero: " << (tieneMaletero ? "Si" : "No") << std::endl;
-    }
-};
-
-class RegistroVehiculos {
-private:
-    std::vector<std::unique_ptr<Vehiculo>> vehiculos;
-    const size_t MAX_VEHICULOS = 20; // Límite máximo similar al de los ejercicios anteriores
-
-public:
-    bool registrar(std::unique_ptr<Vehiculo> nuevoVehiculo) {
-        // Validar si ya existe la placa
-        for (const auto& v : vehiculos) {
-            if (v->getPlaca() == nuevoVehiculo->getPlaca()) {
-                return false; // Placa repetida
-            }
-        }
-        // Validar límite del arreglo/vector
-        if (vehiculos.size() >= MAX_VEHICULOS) {
-            return false; // Contenedor lleno
-        }
-
-        vehiculos.push_back(std::move(nuevoVehiculo));
-        return true;
-    }
-
-    void mostrarTodos() const {
-        if (vehiculos.empty()) {
-            std::cout << "No hay vehiculos registrados.\n";
-            return;
-        }
-        for (const auto& v : vehiculos) {
-            v->mostrar(); // Aquí se aplica el polimorfismo
-        }
-    }
-};
-
-// ==========================================
-// 2. FUNCIONES DE REGISTRO DESDE CONSOLA
-// ==========================================
-
-void registrarAutomovil(RegistroVehiculos& registro) {
-    std::string placa, marca, modelo;
-    int anio, numeroPuertas;
-    double precio;
-    std::string dispStr, elecStr;
-    bool disponible, electrico;
-
+static void registrarAutomovil(RegistroVehiculos& registro) {
     std::cout << "Placa: ";
-    std::getline(std::cin, placa);
+    std::string placa = leerLinea();
     std::cout << "Marca: ";
-    std::getline(std::cin, marca);
+    std::string marca = leerLinea();
     std::cout << "Modelo: ";
-    std::getline(std::cin, modelo);
-    
+    std::string modelo = leerLinea();
     std::cout << "Anio: ";
-    std::string temp;
-    std::getline(std::cin, temp);
-    anio = std::stoi(temp);
-
+    int anio = std::stoi(recortar(leerLinea()));
     std::cout << "Precio: ";
-    std::getline(std::cin, temp);
-    precio = std::stod(temp);
-
+    double precio = std::stod(recortar(leerLinea()));
     std::cout << "Disponible (true/false): ";
-    std::getline(std::cin, dispStr);
-    disponible = (dispStr == "true" || dispStr == "1" || dispStr == "verdadero");
-
+    bool disponible = parseBoolean(leerLinea());
     std::cout << "Numero de puertas: ";
-    std::getline(std::cin, temp);
-    numeroPuertas = std::stoi(temp);
-
+    int numeroPuertas = std::stoi(recortar(leerLinea()));
     std::cout << "Electrico (true/false): ";
-    std::getline(std::cin, elecStr);
-    electrico = (elecStr == "true" || elecStr == "1" || elecStr == "verdadero");
+    bool electrico = parseBoolean(leerLinea());
 
     try {
-        auto nuevoVehiculo = std::make_unique<Automovil>(placa, marca, modelo, anio, precio, disponible, numeroPuertas, electrico);
-        bool exito = registro.registrar(std::move(nuevoVehiculo));
-        std::cout << (exito ? "Automovil registrado.\n" : "No se pudo registrar (arreglo lleno o placa repetida).\n");
-    } catch (const std::exception& e) {
-        std::cout << "Datos invalidos: " << e.what() << "\n";
+        Vehiculo* nuevoVehiculo = new Automovil(placa, marca, modelo, anio, precio, disponible, numeroPuertas, electrico);
+        bool exito = registro.registrar(nuevoVehiculo);
+        if (!exito) {
+            delete nuevoVehiculo;
+        }
+        std::cout << (exito ? "Automovil registrado." : "No se pudo registrar (arreglo lleno o placa repetida).") << std::endl;
+    } catch (const std::invalid_argument& e) {
+        std::cout << "Datos invalidos: " << e.what() << std::endl;
     }
 }
 
-void registrarMotocicleta(RegistroVehiculos& registro) {
-    std::string placa, marca, modelo;
-    int anio, cilindrada;
-    double precio;
-    std::string dispStr, maleteroStr;
-    bool disponible, tieneMaletero;
-
+static void registrarMotocicleta(RegistroVehiculos& registro) {
     std::cout << "Placa: ";
-    std::getline(std::cin, placa);
+    std::string placa = leerLinea();
     std::cout << "Marca: ";
-    std::getline(std::cin, marca);
+    std::string marca = leerLinea();
     std::cout << "Modelo: ";
-    std::getline(std::cin, modelo);
-    
-    std::string temp;
+    std::string modelo = leerLinea();
     std::cout << "Anio: ";
-    std::getline(std::cin, temp);
-    anio = std::stoi(temp);
-
+    int anio = std::stoi(recortar(leerLinea()));
     std::cout << "Precio: ";
-    std::getline(std::cin, temp);
-    precio = std::stod(temp);
-
+    double precio = std::stod(recortar(leerLinea()));
     std::cout << "Disponible (true/false): ";
-    std::getline(std::cin, dispStr);
-    disponible = (dispStr == "true" || dispStr == "1" || dispStr == "verdadero");
-
+    bool disponible = parseBoolean(leerLinea());
     std::cout << "Cilindrada: ";
-    std::getline(std::cin, temp);
-    cilindrada = std::stoi(temp);
-
+    int cilindrada = std::stoi(recortar(leerLinea()));
     std::cout << "Tiene maletero (true/false): ";
-    std::getline(std::cin, maleteroStr);
-    tieneMaletero = (maleteroStr == "true" || maleteroStr == "1" || maleteroStr == "verdadero");
+    bool tieneMaletero = parseBoolean(leerLinea());
 
     try {
-        auto nuevoVehiculo = std::make_unique<Motocicleta>(placa, marca, modelo, anio, precio, disponible, cilindrada, tieneMaletero);
-        bool exito = registro.registrar(std::move(nuevoVehiculo));
-        std::cout << (exito ? "Motocicleta registrada.\n" : "No se pudo registrar (arreglo lleno o placa repetida).\n");
-    } catch (const std::exception& e) {
-        std::cout << "Datos invalidos: " << e.what() << "\n";
+        Vehiculo* nuevoVehiculo = new Motocicleta(placa, marca, modelo, anio, precio, disponible, cilindrada, tieneMaletero);
+        bool exito = registro.registrar(nuevoVehiculo);
+        if (!exito) {
+            delete nuevoVehiculo;
+        }
+        std::cout << (exito ? "Motocicleta registrada." : "No se pudo registrar (arreglo lleno o placa repetida).") << std::endl;
+    } catch (const std::invalid_argument& e) {
+        std::cout << "Datos invalidos: " << e.what() << std::endl;
     }
 }
-
-// ==========================================
-// 3. FUNCIÓN PRINCIPAL (MAIN)
-// ==========================================
 
 int main() {
-    // Configurar consola para caracteres latinos si es necesario
     RegistroVehiculos registro;
-    int opcion = 0;
+    int opcion;
 
     do {
-        std::cout << "\n===== MENU REGISTRO DE VEHICULOS =====\n";
-        std::cout << "1. Registrar Automovil\n";
-        std::cout << "2. Registrar Motocicleta\n";
-        std::cout << "3. Mostrar todos los vehiculos\n";
-        std::cout << "4. Salir\n";
+        std::cout << std::endl;
+        std::cout << "===== MENU REGISTRO DE VEHICULOS =====" << std::endl;
+        std::cout << "1. Registrar Automovil" << std::endl;
+        std::cout << "2. Registrar Motocicleta" << std::endl;
+        std::cout << "3. Mostrar todos los vehiculos" << std::endl;
+        std::cout << "4. Salir" << std::endl;
         std::cout << "Seleccione una opcion: ";
-        
-        std::string inputOp;
-        std::getline(std::cin, inputOp);
-        
-        try {
-            opcion = std::stoi(inputOp);
-        } catch (...) {
-            opcion = 0; // Opción inválida si ingresan letras
-        }
+        opcion = std::stoi(recortar(leerLinea()));
 
         switch (opcion) {
             case 1:
@@ -240,14 +112,13 @@ int main() {
                 registrarMotocicleta(registro);
                 break;
             case 3:
-                // Aquí se ve el Polimorfismo, cada vehículo se imprime con su propio formato
                 registro.mostrarTodos();
                 break;
             case 4:
-                std::cout << "Fin del programa.\n";
+                std::cout << "Fin del programa." << std::endl;
                 break;
             default:
-                std::cout << "Opcion invalida.\n";
+                std::cout << "Opcion invalida." << std::endl;
         }
     } while (opcion != 4);
 

@@ -1,6 +1,6 @@
 # Diagrama de paquetes - TDA Registro de Vehículos
 
-Arquitectura en tres capas, igual en Java (`src/`) y en C++ (`CPP/`).
+Arquitectura en tres capas, igual en Java (`src/`) y en C++ (`CPP/`). En Java los paquetes se llaman `vehiculo.modelo`, `vehiculo.negocio` y `vehiculo.app`.
 
 ```mermaid
 flowchart TB
@@ -13,11 +13,11 @@ flowchart TB
     end
 
     subgraph modelo [modelo]
-        Base["Vehiculo<br/>clase abstracta"]
         Auto["Automovil"]
         Moto["Motocicleta"]
-        Base --> Auto
-        Base --> Moto
+        Base["Vehiculo<br/>clase abstracta"]
+        Auto --> Base
+        Moto --> Base
     end
 
     Main --> Registro
